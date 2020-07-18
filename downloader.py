@@ -1,52 +1,42 @@
 from selenium.webdriver.common.by import By
 from selenium import webdriver
-import unittest
 import time
 from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
-from browsermobproxy import Server
-import pprint
+
+# TODO Get video title
+# TODO Run on every video in the chapter automatically
+# TODO Download via ffmpeg-python
 
 CHROME_DRIVER_PATH = "/Users/nima/Documents/PyCharmProjects/eminemselenium/chromedriver"
 DOMAIN = "https://learning.eminem.edu"
 
-
-#server = Server("/Users/nima/Documents/PyCharmProjects/Xfordselenium/browsermob-proxy-2.1.4/bin/browsermob-proxy")
-#server.start()
-#proxy = server.create_proxy()
-
-
+# Enable logging on Chrome to get network data
 caps = DesiredCapabilities.CHROME
 caps['loggingPrefs'] = {'performance': 'ALL'}
 caps['goog:loggingPrefs'] = {'performance': 'ALL'}
 
-
-#driver = webdriver.Safari()
+# Set chrome driver
 driver = webdriver.Chrome(executable_path=CHROME_DRIVER_PATH, desired_capabilities=caps)
 
-
-# Put in moddle cookie
+# Put in moodle cookie after going on a dummy page
 driver.get(DOMAIN + "/hi")
 driver.add_cookie({"name": "MoodleSession", "value": "9sb0a2jude0iuk9p82ks2207e3"})
-
 
 # Ensure can login to main page
 driver.get(DOMAIN + "/online/course/view.php?id=551&program=scpd")
 
 # Video page
 driver.get(DOMAIN + "/online/mod/video/view.php?id=14801")
-
-#print(driver.get_cookies())
-
 time.sleep(5)
 
+# Play video and select quality
 driver.find_element_by_xpath("/html/body/player/div/div/button").click()  # big play btn
 time.sleep(1)
 driver.find_element_by_xpath("/html/body/player/div/div/div[5]/div[15]").click()  # quality cog
 time.sleep(1)
 driver.find_element_by_xpath("/html/body/player/div/div/div[5]/div[15]/div/ul/li[4]").click()  # 720p
-time.sleep(5)
+time.sleep(3)
 
-#print(driver.execute_script("var performance = window.performance || window.mozPerformance || window.msPerformance || window.webkitPerformance || {}; var network = performance.getEntries() || {}; return network;"))
 
 streams = []
 keys = []
@@ -57,10 +47,13 @@ for entry in driver.get_log('performance'):
     if "hlskey" in str(entry):
         keys.append(entry)
     if ".vtt" in str(entry):
-        keys.append(entry)
+        sub.append(entry)
 
-pprint.pprint(streams)
-pprint.pprint(keys)
-pprint.pprint(sub)
+for lst in [streams, keys, sub]:
+    for item in lst:
+        print(str(item))
+    print()
+    print("-----------------------------------------------")
+    print()
 
 driver.quit()
