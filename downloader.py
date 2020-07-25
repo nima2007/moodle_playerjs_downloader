@@ -3,14 +3,25 @@ from selenium import webdriver
 import time
 from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 import re
+import pycurl
 
 # TODO Run on every video in the chapter automatically
 # TODO Download video via ffmpeg-python
-# TODO download subtitle
 
-CHROME_DRIVER_PATH = "/Users/nima/Documents/PyCharmProjects/eminemselenium/chromedriver"
-DOMAIN = "https://learning.eminem.edu"
-MOODLE_SESSION = "t6n9d216kjkijhgjp75a5q7ko6"
+CHROME_DRIVER_PATH = "/Users/shoja/Desktop/git/moodle_video/chromedriver83"
+DOMAIN = "https://learning.emenim.edu"
+MOODLE_SESSION = "dsbkb2nd6ohhr7uovu9a1hcd64"
+
+def download_with_curl(url):
+    inputfile = open('/Users/shoja/Desktop/git/moodle_video/moodle_playerjs_downloader/subtitle.txt','wb')
+    curl = pycurl.Curl()
+    curl.setopt(curl.URL , url)
+    curl.setopt(pycurl.HTTPHEADER, ['Referer: ' + DOMAIN ])
+    curl.setopt(curl.WRITEDATA,inputfile)
+    curl.perform()
+    inputfile.close()
+    curl.close()
+
 
 
 # Set up the selenium driver to control the chrome browser
@@ -104,6 +115,7 @@ def pattern_match_sub(content):
     assert search_sub
     found_sub = search_sub.group(1)
     print("Match sub: " + found_sub)
+    download_with_curl(found_sub)
 
 
 # Get rid of the garbage around the string containing video title, and return just that
